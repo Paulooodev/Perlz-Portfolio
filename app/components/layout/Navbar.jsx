@@ -9,9 +9,9 @@ import Link from "next/link";
 
 const navLinks = [
     { name: "Home", href: "#" },
-    { name: "Tracks", href: "#tracks" },
+    { name: "About", href: "#about" },
     { name: "Beats", href: "#beats" },
-    { name: "Sample Packs", href: "#samplepacks" },
+    { name: "Sample Packs", href: "#samples" },
     { name: "Services", href: "#services" },
 ]
 

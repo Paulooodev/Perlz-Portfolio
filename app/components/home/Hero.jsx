@@ -1,14 +1,15 @@
 "use client";
-
 import { React, useEffect, useState} from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { PlayCircle, ChevronLeft, ChevronRight, Disc } from "lucide-react";
+import { PlayCircle } from "lucide-react";
 import StudioBG from "@/app/Assets/Perlz.jpg";
 import trackImg1 from "@/app/Assets/suleja.jpg";
-import trackImg2 from "@/app/Assets/buju.jpg"
-import trackImg3 from "@/app/Assets/eternity.jpg"
-import trackImg4 from "@/app/Assets/santa-maria.jpg"
-import { FaSpotify, FaSoundcloud, FaApple, FaPandora, FaDeezer } from "react-icons/fa";
+import trackImg2 from "@/app/Assets/buju.jpg";
+import trackImg3 from "@/app/Assets/eternity.jpg";
+import trackImg4 from "@/app/Assets/santa-maria.jpg";
+import trackImg5 from "@/app/Assets/money.jpg";
+import trackImg6 from "@/app/Assets/slt.jpg"
+import { FaSpotify, FaSoundcloud, FaApple, FaDeezer } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -46,6 +47,22 @@ const TRACKS = [
     img: trackImg4, 
     spotifyUrl: "https://open.spotify.com/track/3jR9aQfVp1IAunp7yZ5Be9?si=35c3f41950494220",
   },
+  {
+    id: 5,
+    title: "Money Convo",
+    artist: 'Perlz & Hamydgrey',
+    work: 'Production',
+    img: trackImg5, 
+    spotifyUrl: "https://open.spotify.com/album/1kLvhiKe0mcJnvumnE8VXC?si=M7VsJA8VR_SxaiRD9Yd-tg",
+  },
+  {
+    id: 6,
+    title: "Sounds Like Tiimie",
+    artist: 'Tiimie',
+    work: 'Production (Track 1,2,3,6,7 & 8',
+    img: trackImg6, 
+    spotifyUrl: "https://open.spotify.com/album/4Fkkz6CN0R6TcPiRHVpGmj?si=epUR-Q0eSFOOjrR8v2pLtA",
+  },
 ];
 
 const Hero = () => {
@@ -64,9 +81,9 @@ const Hero = () => {
   }, [])
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-25">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-24">
       {/* Background */}
-      <div className="absolute inset-0 z-0 overflow-hidden">
+      <div className="absolute inset-0 z-0">
         <Image
           src={StudioBG}
           alt="Studio Background"
@@ -79,7 +96,7 @@ const Hero = () => {
       </div>
 
             <div className="relative z-10 max-w-7xl px-6 mx-auto w-full">
-                <div className="flex md:flex-col max-w-2xl">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
                     {/* Left Content: Text and CTAs */}
                     <motion.div
                     initial={{ opacity: 0, x: -50 }}
@@ -120,12 +137,11 @@ const Hero = () => {
                         </Link>
                     </div>
                     </motion.div>
-                </div>
 
                 {/* Right Content: Popular Carousel Track Card */}
-                <div className="relative mt-12 lg:mt-0 lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 flex items-center justify-center">
-                  <div className="w-full max-w-2xl">
-                    <div className="absolute -inset-4 bg-gradient-to-r from-primary to-blue-600 blur-xl opacity-20 group-hover:opacity-40 transition-opacity duration-1000" />
+                <div className="relative group w-full max-w-2xl mx-auto lg:mx-0 lg:ml-auto">
+                    <div className="absolute -inset-4 bg-gradient-to-r from-primary to-blue-600 blur-xl opacity-20 group-hover:opacity-40 transition-opacity duration-1000 pointer-events-none"  />
+
                     <AnimatePresence mode="wait">
                         <motion.div
                         key={currentTrack.id}
@@ -135,15 +151,14 @@ const Hero = () => {
                         transition={{ duration: 0.5, ease: "circOut" }}
                         drag="x"
                         dragConstraints={{ left: 0, right: 0 }}
-                        onDragEnd={(e, { offset, velocity }) => {
+                        onDragEnd={(e, { offset }) => {
                             if (offset.x > 100) prevTrack();
                             else if (offset.x < -100) nextTrack();
                         }}
-                        className="cursor-grab active:cursor-grabbing"
+                        className="relative cursor-grab active:cursor-grabbing bg-midnight-card/80 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl"
                         >
 
                         {/* Main Card */}
-                        <div className="relative bg-midnight-card/80 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
                         {/* Fake Slider Header */}
                             <div className="px-6 py-4 border-b border-white/10 flex justify-between bg-white/5 items-center">
                                 {/* Indicators */}
@@ -162,8 +177,8 @@ const Hero = () => {
                                 </div>
                             </div>
                             {/* Image Wrapper */}
-                            <div className="p-8 flex flex-col lg:flex-row gap-10 items-center">
-                                <div className="relative w-full lg:w-1/2 aspect-square max-w-[200px] lg:max-w-none rounded-2xl overflow-hidden group/image shadow-lg">
+                            <div className="p-6 sm:p-8 flex flex-col sm:flex-row gap-6 sm:gap-8 items-center">
+                                <div className="relative w-full lg:w-1/2 sm:w-1/2 aspect-square max-w-[240px] lg:max-w-none rounded-2xl overflow-hidden group/image shrink-0 shadow-lg">
                                     <Image
                                     src={currentTrack.img}
                                     alt={currentTrack.title}
@@ -176,7 +191,7 @@ const Hero = () => {
                                 </div>
 
                             {/* Track Info */}
-                            <div className="w-full lg:w-1/2 flex flex-col items-center lg:items-center text-center lg:text-left">
+                            <div className="w-full sm:w-1/2 flex flex-col items-center sm:items-start text-center sm:text-left">
                                 <h3 className="text-4xl font-black text-white mb-1 leading-tight uppercase tracking-tighter">
                                 {currentTrack.title}
                                 </h3>
@@ -205,11 +220,11 @@ const Hero = () => {
                                 </Link>
                             </div>
                             </div>
-                        </div>
                         </motion.div>
                     </AnimatePresence>
-                  </div>
                 </div>
+                </div>
+
             </div>
 
     </section>
