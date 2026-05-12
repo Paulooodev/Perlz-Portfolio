@@ -17,8 +17,9 @@ import {
   Menu,
   X,
 } from "lucide-react";
-import signOut from "../components/SignOut";
 import SignOut from "../components/SignOut";
+import Image from "next/image";
+import Logo from "@/app/Assets/logo2.png";
 
 export default function AdminShell({ children, userEmail }) {
   // Track whether the mobile drawer is open
@@ -50,12 +51,15 @@ export default function AdminShell({ children, userEmail }) {
       {/* ============== MOBILE TOP BAR (visible below lg) ============== */}
       <header className="lg:hidden sticky top-0 z-40 flex items-center justify-between px-4 h-14 bg-[#0a0a0a] border-b border-white/5 backdrop-blur-xl">
         <Link href="/admin" className="flex items-baseline gap-2">
-          <span className="text-lg font-black tracking-tight text-white">
-            PERLZ
-          </span>
-          <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-gray-500">
-            Admin
-          </span>
+          <div className="relative size-30">
+                <Image
+                    src={Logo}
+                    alt="Logo"
+                    className="object-contain"
+                    fill
+                    placeholder="blur"
+                />
+            </div>
         </Link>
 
         <button
@@ -90,12 +94,15 @@ export default function AdminShell({ children, userEmail }) {
         {/* Drawer header with close button */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-xl font-black tracking-tight text-white">
-              PERLZ
-            </h1>
-            <p className="text-gray-500 text-[10px] uppercase tracking-[0.3em] font-bold">
-              Admin
-            </p>
+            <div className="relative size-30">
+                <Image
+                    src={Logo}
+                    alt="Logo"
+                    className="object-contain"
+                    fill
+                    placeholder="blur"
+                />
+            </div>
           </div>
           <button
             onClick={() => setDrawerOpen(false)}
@@ -115,12 +122,15 @@ export default function AdminShell({ children, userEmail }) {
       {/* ============== DESKTOP SIDEBAR (visible at lg+) ============== */}
       <aside className="hidden lg:flex fixed top-0 left-0 w-64 h-screen bg-[#0a0a0a] border-r border-white/5 flex-col p-6">
         <Link href="/admin" className="mb-10">
-          <h1 className="text-2xl font-black tracking-tight text-white">
-            PERLZ
-          </h1>
-          <p className="text-gray-500 text-[10px] uppercase tracking-[0.3em] font-bold">
-            Admin
-          </p>
+         <div className="relative size-30">
+            <Image
+                src={Logo}
+                alt="Logo"
+                className="object-contain"
+                fill
+                placeholder="blur"
+            />
+        </div>
         </Link>
 
         <SidebarContent userEmail={userEmail} pathname={pathname} />

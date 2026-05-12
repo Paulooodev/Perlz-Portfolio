@@ -1,54 +1,48 @@
 "use client";
-import React from 'react';
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { Save, ArrowLeft, AlertCircle, Loader2 } from "lucide-react";
-import FileDropZone from './FileDropZone';
+import TagInput from "./TagInput";
+import FileDropZone from "../../beats/components/FileDropZone";
 
-// Common genre options — keeps spelling consistent across the catalog
-const GENRES = ["Afrobeats", "UK Drill", "Hip-Hop", "R&B", "Afro Drill", "Trap", "Other"];
+const PackForm = ({
+    action,
+    packId = null,
+    defaultValues = {},
+    existingArtworkUrl = null,
+    existingAudioUrl = null,
+    submitLabel = "Save Pack",
+}) => {
+    const [error, setError] = useState("");
+    const [isPending, startTransition] = useTransition();
 
-export default function BeatsForm ({
-  // The action function (createBeat or updateBeat). Called when form submits.
-  action,
-  // Default values for the form fields. Empty for new beats, filled for editing.
-  defaultValues = {},
-  // URLs of existing media (for edit mode). null for new beats.
-  existingArtworkUrl = null,
-  existingAudioUrl = null,
-  // Submit button label
-  submitLabel = "Save Beat",
-}) {
-     const [error, setError] = useState("");
-     const [isPending, startTransition] = useTransition();
-
-     const handleSubmit = (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
         setError("");
-
-        // Pull all form data into a FormData object — server actions accept this directly
         const formData = new FormData(e.currentTarget);
 
         startTransition(async () => {
-            const result = await action(formData);
-                // If the action redirects on success, we never reach here.
-                // If it returns an error, show it.
-                if (result?.error) setError(result.error);
+         const result = await action(formData);
+         if (result?.error) setError(result.error);   
         })
-     }
+    }
+
   return (
-    <form
+     <form
         className='max-w-6xl'
         onSubmit={handleSubmit}    
     >
+    {/* Hidden id for edit mode */}
+      {packId && <input type="hidden" name="id" value={packId} />}
+
         {/* Top bar with back link + submit button */}
             <div className="flex items-center justify-between mb-8">
                 <Link
-                    href="/admin/beats"
+                    href="/admin/packs"
                     className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors"
                 >
                     <ArrowLeft size={14} />
-                    Back to beats
+                    Back to packs
                 </Link>
                 <button 
                     className="inline-flex items-center gap-2 h-11 px-5 rounded-lg bg-primary hover:bg-blue-600 disabled:opacity-50 text-white text-sm font-bold transition-colors"
@@ -80,7 +74,7 @@ export default function BeatsForm ({
         {/* Two Column Layout  */}
         <div className="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-8">
             {/* Left Column */}
-            <div className="flex flex-col gap-">
+            <div className="flex flex-col gap-6">
                 <FileDropZone
                     name="artwork"
                     accept="image/*"
@@ -93,8 +87,8 @@ export default function BeatsForm ({
                 <FileDropZone
                     name="preview_audio"
                     accept="audio/*"
-                    label="Preview Audio"
-                    hint="30–60 second tagged clip only. MP3 recommended."
+                    label="Demo Audio"
+                    hint="Short medley showcasing the pack. MP3 recommended."
                     type="audio"
                     existingUrl={existingAudioUrl}
                 />
@@ -105,76 +99,83 @@ export default function BeatsForm ({
                 {/* Title */}
                 <Field label="Title" required>
                     <input
-                    type="text"
-                    name="title"
-                    required
-                    defaultValue={defaultValues.title || ""}
-                    placeholder="e.g. Midnight in Lagos"
-                    className="form-input"
-                    />
-                </Field>
-
-             {/* Genre + Mood (2-col grid) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <Field label="Genre" required>
-                    <select
-                        name="genre"
+                        type="text"
+                        name="title"
                         required
-                        defaultValue={defaultValues.genre || ""}
+                        defaultValue={defaultValues.title || ""}
+                        placeholder="e.g. Lagos Nights Vol. 1"
                         className="form-input"
-                    >
-                      <option value="">Select a genre…</option>
-                        {GENRES.map((g) => (
-                            <option
-                                key={g}
-                                value={g}
-                            >
-                                {g}
-                            </option>
-                        ))}
-                    </select>
+                    />
                 </Field>
 
-                <Field label="Mood">
+                {/* Subtitle */}
+                <Field label="Subtitle" hint="Short tagline (e.g. 'Afrobeats Drum Kit')">
                     <input
                         type="text"
-                        name="mood"
-                        defaultValue={defaultValues.mood || ""}
-                        placeholder="e.g. Dark, Melodic"
+                        name="subtitle"
+                        required
+                        defaultValue={defaultValues.subtitle || ""}
+                        placeholder="e.g. Afrobeats Drum Kit"
+                        className="form-input"
+                    />
+                </Field>
+
+                {/* Description */}
+                <Field label="Description" hint="Full paragraph describing what's inside">
+                    <textarea
+                        name="description"
+                        required
+                        defaultValue={defaultValues.description || ""}
+                        placeholder="40 one-shots, 25 loops, and 10 MIDI patterns built for modern Afrobeats."
+                        className="form-input resize-none"
+                    />
+                </Field>
+
+             {/* Contents stats (3-col grid) */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <Field label="Sample Count">
+                    <input
+                        name="sample_count"
+                        type='text'
+                        required
+                        defaultValue={defaultValues.sample_count || ""}
+                        placeholder="75+"
+                        className="form-input"
+                    />
+                </Field>
+
+                <Field label="File Size">
+                    <input
+                        type="text"
+                        name="file_size"
+                        defaultValue={defaultValues.file_size || ""}
+                        placeholder="480 MB"
+                        className="form-input"
+                    />
+                </Field> 
+
+                <Field label="Format">
+                    <input
+                        type="text"
+                        name="format"
+                        defaultValue={defaultValues.format || ""}
+                        placeholder="WAV + MIDI"
                         className="form-input"
                     />
                 </Field>                        
                 </div> 
 
-             {/* BPM + Key (2-col grid) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <Field label="BPM">
-                    <input
-                        type="number"
-                        name="bpm"
-                        min="40"
-                        max="220"
-                        defaultValue={defaultValues.bpm || ""}
-                        placeholder="e.g. 102"
-                        className="form-input"
+                {/* Tags */}
+                <Field label="Tags">
+                    <TagInput
+                    name="tags"
+                    defaultValue={defaultValues.tags || []}
                     />
                 </Field>
-
-
-                <Field label="Key">
-                    <input
-                        type="text"
-                        name="musical_key"
-                        defaultValue={defaultValues.musical_key || ""}
-                        placeholder="e.g. F# Min"
-                        className="form-input"
-                    />
-                </Field>                        
-                </div> 
 
             {/* Prices (2-col grid) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <Field label="Price (NGN)" hint="Lease starting price in Naira">
+                <Field label="Price (NGN)">
                 <div className="relative">
                     <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 font-mono text-sm">
                         ₦
@@ -189,7 +190,7 @@ export default function BeatsForm ({
                     />
                 </div>
             </Field>
-            <Field label="Price (USD)" hint="Lease starting price in Naira">
+            <Field label="Price (USD)">
             <div className="relative">
                 <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 font-mono text-sm">
                     $
@@ -250,6 +251,7 @@ export default function BeatsForm ({
   )
 }
 
+export default PackForm
 
 // Toggle 
 function Toggle({ name, label, hint, defaultChecked }) {
@@ -284,4 +286,3 @@ function Field ({ label, required, hint, children }) {
        </div> 
     )
 }
-

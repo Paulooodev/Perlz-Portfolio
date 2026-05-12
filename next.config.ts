@@ -1,6 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Allow server action payloads up to 25 MB so admin uploads can include
+  // audio files. The default 1 MB limit blocks anything bigger than text-only
+  // forms, which is fine for end users but blocks our admin file uploads.
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "50mb",
+    },
+  },
+
   images: {
     remotePatterns: [
       {

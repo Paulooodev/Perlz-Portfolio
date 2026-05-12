@@ -1,6 +1,5 @@
 "use client";
 
-
 import { useSearchParams } from "next/navigation";
 import { login } from "./actions";
 import { LogIn, Loader2, AlertCircle } from "lucide-react";
