@@ -1,17 +1,17 @@
 "use client"
-import React from 'react';
+import { createClient } from "@supabase/supabase-js";
 import { useTransition } from "react";
-import { signOut } from '../login/actions';
+import { signOut } from "../../login/actions";
 import { LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function SignOut() {
   const [isPending, startTransition] = useTransition();
+  const router = useRouter()
 
   const handleSignOut = async () => {
-          await supabase.auth.signOut();
-          router.push("/admin/login");
-          router.refresh();
-      };
+    await signOut()
+  };
 
   return (
     <button

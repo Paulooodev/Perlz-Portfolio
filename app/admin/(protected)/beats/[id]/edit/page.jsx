@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { updateBeat } from "../../actions";
-import BeatsForm from "../../components/BeatsForm";
+import BeatsForm from "../../_components/BeatsForm";
 
 export const metadata = {
   title: "Edit Beat — Admin",

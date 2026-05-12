@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Plus, Music2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import BeatRow from "./components/BeatRow";
+import BeatRow from "./_components/BeatRow";
 
 export const metadata = {
   title: "Beats — Admin",

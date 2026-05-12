@@ -1,6 +1,6 @@
 
 import { createClient } from "@/lib/supabase/server";
-import BeatsCatalogue from "./components/BeatsCatalogue";
+import BeatsCatalogue from "./_components/BeatsCatalogue";
 
 export const metadata = {
   title: "Beats — Perlz",

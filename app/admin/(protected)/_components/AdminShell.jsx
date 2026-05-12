@@ -17,7 +17,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
-import SignOut from "../components/SignOut";
+import SignOut from "./SignOut";
 import Image from "next/image";
 import Logo from "@/app/Assets/logo2.png";
 

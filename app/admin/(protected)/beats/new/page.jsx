@@ -1,4 +1,4 @@
-import BeatsForm from "../components/BeatsForm";
+import BeatsForm from "../_components/BeatsForm";
 import { createBeat } from "../actions";
 
 export const metadata = {

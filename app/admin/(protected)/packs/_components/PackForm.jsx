@@ -3,7 +3,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { Save, ArrowLeft, AlertCircle, Loader2 } from "lucide-react";
 import TagInput from "./TagInput";
-import FileDropZone from "../../beats/components/FileDropZone";
+import FileDropZone from "../../beats/_components/FileDropZone";
 
 const PackForm = ({
     action,

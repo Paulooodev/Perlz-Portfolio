@@ -1,6 +1,6 @@
 
 import { createClient } from "@/lib/supabase/server";
-import { PackCard } from "../../components/home/Sample";
+import PackCard from "../../components/cards/PackCard";
 
 export const metadata = {
   title: "Sample Packs — Perlz",
