@@ -74,7 +74,7 @@ const About = () => {
 
             {/* Heading */}
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[0.95] mb-8 text-white">
-              HIT-MAKING <br />
+              HIT-MAKER <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-400 to-primary-dark">
                 FROM LAGOS
               </span>

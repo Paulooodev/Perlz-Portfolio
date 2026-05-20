@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState} from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Music, Menu, X } from "lucide-react";
+import { Music, Menu, Youtube, X } from "lucide-react";
 import Image from "next/image";
 import Logo from "@/app/Assets/logo2.png";
 import Link from "next/link";
@@ -12,6 +12,7 @@ const navLinks = [
     { name: "About", href: "#about" },
     { name: "Beats", href: "#beats" },
     { name: "Sample Packs", href: "#samples" },
+    { name: "Beats Breakdown", href: "#breakdown" },
     { name: "Services", href: "#services" },
 ]
 
@@ -74,9 +75,9 @@ const Navbar = () => {
 
                     {/* CTA Actions */}
                     <div className="flex items-center gap-4">
-                        <button className="bg-primary hover:bg-blue-600 px-6 py-3 rounded-full text-xl font-black shadow-[0_0_20px_rgba(13,89,242,0.4)] transition-all">
+                        {/* <button className="bg-primary hover:bg-blue-600 px-6 py-3 rounded-full text-xl font-black shadow-[0_0_20px_rgba(13,89,242,0.4)] transition-all">
                             CONTACT
-                        </button>
+                        </button> */}
 
                         {/* Mobile Toggle */}
                         <button 

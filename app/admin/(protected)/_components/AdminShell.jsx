@@ -15,6 +15,7 @@ import {
   LayoutDashboard,
   ExternalLink,
   Menu,
+  Youtube,
   X,
 } from "lucide-react";
 import SignOut from "./SignOut";
@@ -145,9 +146,7 @@ export default function AdminShell({ children, userEmail }) {
   );
 }
 
-// ============================================================================
-// SidebarContent — shared between mobile drawer and desktop sidebar
-// ============================================================================
+
 function SidebarContent({ userEmail, pathname }) {
   return (
     <>
@@ -160,6 +159,9 @@ function SidebarContent({ userEmail, pathname }) {
         </NavLink>
         <NavLink href="/admin/packs" icon={Package} pathname={pathname}>
           Packs
+        </NavLink>
+        <NavLink href="/admin/breakdowns" icon={Youtube} pathname={pathname}>
+          Breakdowns
         </NavLink>
       </nav>
 
