@@ -18,6 +18,7 @@ const BreakdownsShowcase = ({ breakdown }) => {
         <Image
           src={thumbnailUrl}
           alt={breakdown.title}
+          fill
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
 
