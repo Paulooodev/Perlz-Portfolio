@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createAdminClient } from "@/lib/supabase/server";
 
 // HELPERS 
 function makeStoragePath(folder, originalFilename) {
@@ -52,6 +53,8 @@ function parsePackFormData(formData) {
             : null,
         is_featured: formData.get("is_featured") === "on",
         is_published: formData.get("is_published") === "on",
+        artwork_path: String(formData.get("artwork_path") || "").trim() || null,
+        preview_audio_path: String(formData.get("preview_audio_path") || "").trim() || null,
     }
 }
 
@@ -66,37 +69,11 @@ export async function createPack(formData) {
   const fields = parsePackFormData(formData);
   if (!fields.title) return { error: "Title is required." };
 
-  const artworkFile = formData.get("artwork");
-  const audioFile = formData.get("preview_audio");
-
-  let artwork_path = null;
-  let preview_audio_path = null;
-  
-  try {
-    artwork_path = await uploadFile(supabase, artworkFile, "artwork");
-   // Audio is optional for packs — only upload if provided
-    preview_audio_path = await uploadFile(supabase, audioFile, "audio");
-  } catch (err) {
-    if (artwork_path) await deleteFile(supabase, artwork_path);
-    if (preview_audio_path) await deleteFile(supabase, preview_audio_path);
-    return { error: err.message}
-  }
-
-  const { error: insertError } = await supabase.from("packs").insert({
-    ...fields,
-    artwork_path,
-    preview_audio_path,
-  })
-
-  if (insertError) {
-    if (artwork_path) await deleteFile(supabase, artwork_path);
-    if (preview_audio_path) await deleteFile(supabase, preview_audio_path);
-    return { error: insertError.message };
-  }
+  const { error } = await supabase.from("packs").insert(fields);
+  if (error) return { error: error.message };
 
   revalidatePath("/admin/packs");
   revalidatePath("/", "layout");
-
   redirect("/admin/packs");  
 }
 
@@ -116,45 +93,35 @@ export async function updatePack(formData) {
   if (!fields.title) return { error: "Title is required." };
 
     const { data: existing, error: fetchError } = await supabase
-    .from("packs-media")
+    .from("packs")
     .select("artwork_path, preview_audio_path")
     .eq("id", id)
     .single();
 
   if (fetchError) return { error: "Pack not found." };
 
-  const artworkFile = formData.get("artwork");
-  const audioFile = formData.get("preview_audio");
-
-  let artwork_path = existing.artwork_path;
-  let preview_audio_path = existing.preview_audio_path;
-  
-  try {
-    if (artworkFile && artworkFile.size > 0) {
-      const newPath = await uploadFile(supabase, artworkFile, "artwork");
-      await deleteFile(supabase, existing.artwork_path);
-      artwork_path = newPath;
+  const admin = createAdminClient();
+    if (existing) {
+      if(fields.artwork_path && existing.artwork_path && fields.artwork_path !== existing.artwork_path){
+        await admin.storage.from("packs-media").remove([existing.artwork_path]);
+      }
+      if(fields.preview_audio_path && existing.preview_audio_path && fields.preview_audio_path !== existing.preview_audio_path){
+        await admin.storage.from("packs-media").remove([existing.preview_audio_path]);
+      }
     }
-    if (audioFile && audioFile.size > 0) {
-      const newPath = await uploadFile(supabase, audioFile, "audio");
-      await deleteFile(supabase, existing.preview_audio_path);
-      preview_audio_path = newPath;
-    }
-  } catch (err) {
-    return { error: err.message}
-  }
+    
 
-  const { error: updateError } = await supabase
+
+  const { error } = await supabase
     .from("packs")
-    .update({ ...fields, artwork_path, preview_audio_path })
+    .update(fields)
     .eq("id", id);
 
-  if (updateError) return { error: updateError.message };
+  if (error) return { error: error.message };
 
   revalidatePath("/admin/packs");
   revalidatePath(`/admin/packs/${id}/edit`);
   revalidatePath("/", "layout");
-
   redirect("/admin/packs");  
 }
 
@@ -176,14 +143,14 @@ export async function deletePack(id) {
      if (error) return { error: error.message };
 
      if(existing){
-        await deleteFile(supabase, existing.artwork_path);
-        await deleteFile(supabase, existing.preview_audio_path);
+      const admin = createAdminClient();
+        const toDelete = [existing.artwork_path, existing.preview_audio_path].filter(Boolean);
+        if (toDelete.length) await admin.storage.from("packs-media").remove(toDelete);
      }
 
 
     revalidatePath("/admin/packs");
     revalidatePath("/", "layout");
-
     return { success: true };     
 }
 

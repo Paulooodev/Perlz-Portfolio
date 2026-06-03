@@ -16,15 +16,23 @@ const PackForm = ({
     const [error, setError] = useState("");
     const [isPending, startTransition] = useTransition();
 
+
+    const handleUploadingChange = (uploading) => {
+        setUploadingCount((n) => (uploading ? n + 1 : Math.max(0, n - 1)))
+    }
     const handleSubmit = (e) => {
         e.preventDefault();
         setError("");
-        const formData = new FormData(e.currentTarget);
 
+        if(!isUploading){
+            setError("Please wait for uploads to finish before saving.")
+            return;
+        }
+        const formData = new FormData(e.currentTarget);
         startTransition(async () => {
          const result = await action(formData);
          if (result?.error) setError(result.error);   
-        })
+        });
     }
 
   return (
@@ -46,14 +54,19 @@ const PackForm = ({
                 </Link>
                 <button 
                     className="inline-flex items-center gap-2 h-11 px-5 rounded-lg bg-primary hover:bg-blue-600 disabled:opacity-50 text-white text-sm font-bold transition-colors"
-                    disabled={isPending}
+                    disabled={isPending || isUploading}
                     type="submit"
                 >
-                    {isPending ? (
+                    {isUploading ? (
                         <>
                             <Loader2 size={14} className="animate-spin" />
                             Saving…
                         </>
+                    ) : isPending ? (
+                      <>
+                            <Loader2 size={14} className="animate-spin" />
+                            Saving…
+                      </>  
                     ) : (
                      <>
                         <Save size={14} />
@@ -77,20 +90,28 @@ const PackForm = ({
             <div className="flex flex-col gap-6">
                 <FileDropZone
                     name="artwork"
+                    bucket="packs-media"
                     accept="image/*"
+                    folder="artwork"
                     label="Artwork"
                     hint="Square image, at least 1000×1000px. JPG or PNG."
                     type="image"
                     existingUrl={existingArtworkUrl}
+                    existingPath={defaultValues.artwork_path || null}
+                    onUploadingChange={handleUploadingChange}
                 />
 
                 <FileDropZone
                     name="preview_audio"
+                    bucket="packs-media"
                     accept="audio/*"
                     label="Demo Audio"
+                    folder="audio"
                     hint="Short medley showcasing the pack. MP3 recommended."
                     type="audio"
                     existingUrl={existingAudioUrl}
+                    existingPath={defaultValues.preview_audio_path || null}
+                    onUploadingChange={handleUploadingChange}
                 />
             </div>
 
@@ -182,9 +203,9 @@ const PackForm = ({
                     </span>
                     <input
                         type="number"
-                        name="price_from_ngn"
+                        name="price_ngn"
                         min="0"
-                        defaultValue={defaultValues.price_from_ngn || ""}
+                        defaultValue={defaultValues.price_ngn || ""}
                         placeholder="50000"
                         className="form-input pl-8"
                     />
@@ -197,9 +218,9 @@ const PackForm = ({
                 </span>
                 <input
                     type="number"
-                    name="price_from_usd"
+                    name="price_usd"
                     min="0"
-                    defaultValue={defaultValues.price_from_usd || ""}
+                    defaultValue={defaultValues.price_usd || ""}
                     placeholder="35"
                     className="form-input pl-8"
                 />
