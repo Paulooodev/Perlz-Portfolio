@@ -46,7 +46,7 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "img.youtube.com",
-        pathname: "**",
+        pathname: "/**",
       },
       // Optional: Add more domains here later (e.g., Unsplash, your own CDN)
     ],

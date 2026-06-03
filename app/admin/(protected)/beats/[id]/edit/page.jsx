@@ -41,7 +41,6 @@ export default async function EditBeatPage({ params }) {
         existingAudioUrl = data.publicUrl;
     }
 
-    const updateBeatWithId = updateBeat.bind(null, id);
 
     return(
         <div>
@@ -55,7 +54,8 @@ export default async function EditBeatPage({ params }) {
             </p>
             </div> 
            <BeatsForm
-                action={updateBeatWithId}
+                action={updateBeat}
+                beatId={id}
                 defaultValues={beat}
                 existingArtworkUrl={existingArtworkUrl}
                 existingAudioUrl={existingAudioUrl}

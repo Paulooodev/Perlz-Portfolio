@@ -11,6 +11,7 @@ const GENRES = ["Afrobeats", "UK Drill", "Hip-Hop", "R&B", "Afro Drill", "Trap",
 export default function BeatsForm ({
   // The action function (createBeat or updateBeat). Called when form submits.
   action,
+  beatId = null,
   // Default values for the form fields. Empty for new beats, filled for editing.
   defaultValues = {},
   // URLs of existing media (for edit mode). null for new beats.
@@ -19,13 +20,25 @@ export default function BeatsForm ({
   // Submit button label
   submitLabel = "Save Beat",
 }) {
-     const [error, setError] = useState("");
-     const [isPending, startTransition] = useTransition();
+    const [error, setError] = useState("");
+    const [isPending, startTransition] = useTransition();
 
+    const [uploadingCount, setUploadingCount] = useState(0);
+    const isUploading = uploadingCount > 0;
+
+    const handleUploadingChange = (uploading) => {
+        setUploadingCount((n) => (uploading ? n + 1 : Math.max(0, n - 1)));
+    }
      const handleSubmit = (e) => {
         e.preventDefault();
         setError("");
 
+
+    // Guard: don't allow submit while uploads are running
+    if (isUploading) {
+      setError("Please wait for uploads to finish before saving.");
+      return;
+    }
         // Pull all form data into a FormData object — server actions accept this directly
         const formData = new FormData(e.currentTarget);
 
@@ -41,6 +54,7 @@ export default function BeatsForm ({
         className='max-w-6xl'
         onSubmit={handleSubmit}    
     >
+        {beatId && <input type="hidden" name="id" value={beatId} />}
         {/* Top bar with back link + submit button */}
             <div className="flex items-center justify-between mb-8">
                 <Link
@@ -82,21 +96,29 @@ export default function BeatsForm ({
             {/* Left Column */}
             <div className="flex flex-col gap-">
                 <FileDropZone
-                    name="artwork"
+                    name="artwork_path"
+                    bucket="beats-media"
+                    folder="artwork"
                     accept="image/*"
                     label="Artwork"
                     hint="Square image, at least 1000×1000px. JPG or PNG."
                     type="image"
                     existingUrl={existingArtworkUrl}
+                    existingPath={defaultValues.artwork_path || null}
+                    onUploadingChange={handleUploadingChange}
                 />
 
                 <FileDropZone
-                    name="preview_audio"
+                    name="preview_audio_path"
+                    bucket="beats-media"
+                    folder="preview_audio"
                     accept="audio/*"
                     label="Preview Audio"
-                    hint="30–60 second tagged clip only. MP3 recommended."
+                    hint="30-60 second tagged clip only. MP3 recommended."
                     type="audio"
                     existingUrl={existingAudioUrl}
+                    existingPath={defaultValues.preview_audio_path || null}
+                    onUploadingChange={handleUploadingChange}
                 />
             </div>
 

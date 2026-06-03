@@ -1,12 +1,13 @@
-"use-client"
+"use client"
 import { useRef, useState, useEffect } from "react";
-import { Upload, X, Image as ImageIcon, Music, AlertCircle } from "lucide-react";
+import { Upload, X, Image as ImageIcon, Music, AlertCircle, Loader2, CheckCircle2 } from "lucide-react";
+import { uploadToStorage } from "../../../../../lib/upload-to-storage";
 import React from 'react'
 
 
 const MAX_SIZES = {
-    image: 5 * 1024 * 1024,  
-    audio: 15 * 1024 * 1024,
+    image: 10 * 1024 * 1024,  
+    audio: 30 * 1024 * 1024,
 }
 
 function formatSize(bytes) {
@@ -14,16 +15,23 @@ function formatSize(bytes) {
 }
 
 const FileDropZone = ({
-    name,                  // form field name (e.g. "artwork", "preview_audio")
+    name,                 // form field name (e.g. "artwork", "preview_audio")
+    folder,                  
+    bucket,
     accept,                // MIME types to accept (e.g. "image/*", "audio/*")
     label,                 // display label
     hint,                  // small helper text below
     existingUrl = null,    // if editing, the URL of the existing file to show
+    existingPath = null,  // for edit mode: the existing storage path
     type = "image",        // "image" or "audio" — affects preview rendering
-}
-) => {
-// Stores the actual binary data (the file itself) to be sent to Supabase
-const [file, setFile] = useState(null);
+    onUploadingChange,    // callback(bool) — tells the parent form when an upload is in progress
+}) => {
+
+ // The storage path after a successful upload (this is what the form submits)
+const [path, setPath] = useState(existingPath || "");
+
+// Upload status: idle | uploading | done | error
+const [status, setStatus] = useState(existingPath ? "done" : "idle");
 
 // Stores a URL string for the UI (either an 'https://' link from the DB or a 'blob:' link from the browser)
 const [preview, setPreview] = useState(existingUrl);
@@ -31,53 +39,78 @@ const [preview, setPreview] = useState(existingUrl);
 // Tracks if a file is being hovered over the box (used for CSS hover effects/glows)
 const [dragging, setDragging] = useState(false);
 
-// validation error if the file is too big or wrong type
-const [validationError, setValidationError] = useState("");
+//error if the file is too big or wrong type
+const [errorMsg, setErrorMsg] = useState("");
+
+const [fileName, setFileName] = useState("");
+
+const [progress, setProgress] = useState(0);
 
 // A remote control for the hidden HTML file input
 const inputRef = useRef(null);
 
-useEffect(() => {
-    // If no new file is selected, don't do anything
-    if(!file) return;
-
-    // Create a temporary, local URL that points to the file in the computer's memory
-    const url = URL.createObjectURL(file);
-    setPreview(url);
-    
-    // CLEANUP: When the component closes or file changes, delete the temp URL to save RAM
-    return () => URL.revokeObjectURL(url);
-}, [file])
-
 // --- CORE FILE HANDLER ---
-const handleFile = (selectedFile) => {
-   if (!selectedFile) return;
+const handleFile = async (file) => {
+   if (!file) return;
     // Clear any previous error
-    setValidationError("");
+    setErrorMsg("");
 
    // Check file size against the limit for this type
     const maxSize = MAX_SIZES[type] || MAX_SIZES.image;
-    if (selectedFile.size > maxSize) {
-      setValidationError(
-        `File is ${formatSize(selectedFile.size)} — max allowed is ${formatSize(maxSize)}. Please compress or resize before uploading.`
+    if (file.size > maxSize) {
+      setErrorMsg(
+        `File is ${formatSize(file.size)} — max allowed is ${formatSize(maxSize)}. Please compress or resize before uploading.`
       );
       // Reset the file input so they can re-select if needed
       if (inputRef.current) inputRef.current.value = "";
       return;
     } 
 
-    if (type === "image" && !selectedFile.type.startsWith("image/")) {
-      setValidationError("That doesn't look like an image. JPG or PNG only.");
+    // Type check
+    if (type === "image" && !file.type.startsWith("image/")) {
+      setErrorMsg("That doesn't look like an image. JPG or PNG only.");
       return;
     }
-    if (type === "audio" && !selectedFile.type.startsWith("audio/")) {
-      setValidationError("That doesn't look like an audio file. MP3 recommended.");
+    if (type === "audio" && !file.type.startsWith("audio/")) {
+      setErrorMsg("That doesn't look like an audio file. MP3 recommended.");
       return;
     }
 
+    const localPreview = URL.createObjectURL(file);
+    setPreview(localPreview)
     // All checks passed — accept the file
-    setFile(selectedFile);
+    setFileName(file.name);
+
+    // Upload to Supabase
+    setStatus("uploading");
+    setProgress(10);
+    if (onUploadingChange) onUploadingChange(true);
+
+    try {
+      const uploadedPath = await uploadToStorage({
+        file,
+        bucket,
+        folder, 
+        onProgress: setProgress,
+      });
+      setPath(uploadedPath);
+      setStatus("done");
+    } catch(err) {
+      setStatus("error");
+      setErrorMsg(err.message || "Upload failed. Try again.");
+      setPath("");
+    } finally {
+      // Upload finished (success or fail) — tell the parent it's safe to save
+      if (onUploadingChange) onUploadingChange(false);
+    }
 };
+
+useEffect(() => {
+    // CLEANUP: When the component closes or file changes, delete the temp URL to save RAM
+    return () => {
+      if(preview && preview.startsWith("blob:")) URL.revokeObjectURL(preview);
+    }
+}, [preview])
 
 // --- DRAG AND DROP LOGIC ---
 const handleDragOver = (e) => {
@@ -108,9 +141,11 @@ const handleInputChange = (e) => handleFile(e.target.files?.[0]);
 const handleClear = (e) => {
     // Prevents the Click to Browse logic from firing when you hit Delete
     e.stopPropagation();
-    setFile(null);          // Remove the file data
+    setPath("");          // Remove the file data
     setPreview(existingUrl); // Revert to the original image (or null)
-    setValidationError("");
+    setStatus(existingPath ? "done" : "idle");
+    setErrorMsg("");
+    setFileName("");
     // Reset the actual HTML input so you can select the same file again if needed
     if (inputRef.current) inputRef.current.value = "";
 }
@@ -123,6 +158,8 @@ const maxSize = MAX_SIZES[type] || MAX_SIZES.image;
         <label className="text-xs font-bold uppercase tracking-widest text-gray-400">
             {label}
         </label> 
+    {/* Hidden input that the FORM submits — contains the storage path */}
+      <input type="hidden" name={name} value={path} />
 
        <div
         onClick={handleClick}
@@ -135,7 +172,7 @@ const maxSize = MAX_SIZES[type] || MAX_SIZES.image;
           ${
             dragging
               ? "border-primary bg-primary/5"
-              : validationError
+              : errorMsg
               ? "border-red-500/40 bg-red-500/5"
               : "border-white/10 hover:border-white/20 bg-[#0a0a0a]"
           }
@@ -145,7 +182,6 @@ const maxSize = MAX_SIZES[type] || MAX_SIZES.image;
         <input
           ref={inputRef}
           type="file"
-          name={name}
           accept={accept}
           onChange={handleInputChange}
           className="hidden"
@@ -164,16 +200,34 @@ const maxSize = MAX_SIZES[type] || MAX_SIZES.image;
                     <div className="p-6 flex flex-col items-center gap-3">
                     <Music size={32} className="text-primary" />
                     <audio controls src={preview} className="w-full max-w-xs" />
-                    {file && (
+                    {fileName && (
                         <p className="text-xs text-gray-500 truncate max-w-full">
-                        {file.name} . {formatSize(file.size)}
+                        {fileName}
                         </p>
                     )}
                     </div>
                 )}
 
+              {/* Upload status overlay */}
+              {status === "uploading" && (
+                <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center gap-3">
+                  <Loader2 size={28} className="text-primary animate-spin" />
+                  <p className="text-white text-sm font-bold">Uploading… {progress}%</p>
+                  <div className="w-2/3 h-1 bg-white/20 rounded-full overflow-hidden">
+                    <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} />
+                  </div>
+                </div>
+              )}
+
+              {/* Done Badge */}
+              {status === "done" && (
+                <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 bg-green-500/90 rounded-full text-white text-[10px] font-bold">
+                  <CheckCircle2 size={12}/>
+                  Uploaded
+                </div>
+              )}
                 {/* Clear button — only show if user has selected a NEW file */}
-                {file && (
+                {status !== "uploading" && (
                     <button
                     type="button"
                     onClick={handleClear}
@@ -204,10 +258,10 @@ const maxSize = MAX_SIZES[type] || MAX_SIZES.image;
         </div> 
 
         {/* Validation error banner — appears below the dropzone */}
-              {validationError && (
+              {errorMsg && (
                 <div className="flex items-start gap-2 px-3 py-2 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-xs">
                   <AlertCircle size={14} className="shrink-0 mt-0.5" />
-                  <span>{validationError}</span>
+                  <span>{errorMsg}</span>
                 </div>
               )}
     </div>
@@ -215,3 +269,4 @@ const maxSize = MAX_SIZES[type] || MAX_SIZES.image;
 }
 
 export default FileDropZone
+
