@@ -45,7 +45,7 @@ export default async function SamplePacks() {
 
        if (!packs.length) return null; 
     return (
-        <section className="scroll-mt-24 py-24 relative bg-midnight overflow-hidden" id="packs">
+        <section className="scroll-mt-24 py-24 relative bg-midnight overflow-hidden" id="samples">
             <div className="absolute inset-0 -z-10 pointer-events-none">
              <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[140px]" />
             </div>

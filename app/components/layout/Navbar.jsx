@@ -12,7 +12,7 @@ const navLinks = [
     { name: "About", href: "#about" },
     { name: "Beats", href: "#beats" },
     { name: "Sample Packs", href: "#samples" },
-    { name: "Beats Breakdown", href: "#breakdown" },
+    { name: "Beats Breakdown", href: "#breakdowns" },
     { name: "Services", href: "#services" },
 ]
 

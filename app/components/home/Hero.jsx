@@ -8,7 +8,9 @@ import trackImg2 from "@/app/Assets/buju.jpg";
 import trackImg3 from "@/app/Assets/eternity.jpg";
 import trackImg4 from "@/app/Assets/santa-maria.jpg";
 import trackImg5 from "@/app/Assets/money.jpg";
-import trackImg6 from "@/app/Assets/slt.jpg"
+import trackImg6 from "@/app/Assets/Motherland.jpeg";
+import trackImg7 from "@/app/Assets/Blessings.jpeg";
+import trackImg8 from "@/app/Assets/slt.jpg";
 import { FaSpotify, FaSoundcloud, FaApple, FaDeezer } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
@@ -57,10 +59,26 @@ const TRACKS = [
   },
   {
     id: 6,
+    title: "Motherland Deep",
+    artist: 'Tiimie',
+    work: 'Production',
+    img: trackImg6, 
+    spotifyUrl: "https://open.spotify.com/track/5PXJVPczlfRH5k4u4lzlM0?si=fb1efe14ac264824",
+  },
+  {
+    id: 7,
+    title: "Blessings",
+    artist: 'Poppill, Perlz & Hydiz',
+    work: 'Production',
+    img: trackImg7, 
+    spotifyUrl: "https://open.spotify.com/track/36ESaPADvOcNypQMONsQEI?si=a1d988943b404d89",
+  },
+  {
+    id: 8,
     title: "Sounds Like Tiimie",
     artist: 'Tiimie',
-    work: 'Production (Track 1,2,3,6,7 & 8',
-    img: trackImg6, 
+    work: 'Production (Track 1, 2, 3, 6, 7, & 8)',
+    img: trackImg8, 
     spotifyUrl: "https://open.spotify.com/album/4Fkkz6CN0R6TcPiRHVpGmj?si=epUR-Q0eSFOOjrR8v2pLtA",
   },
 ];

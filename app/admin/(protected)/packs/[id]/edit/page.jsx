@@ -21,7 +21,7 @@ export default async function EditPackPage({ params })  {
 
         if(error || !pack) notFound();
 
-    // Generate URLS for existing media (packs-mdeia bucket)
+    // Generate URLS for existing media (packs-media bucket)
     let existingArtworkUrl = null;
     let existingAudioUrl = null;
 
