@@ -11,6 +11,7 @@ import trackImg5 from "@/app/Assets/money.jpg";
 import trackImg6 from "@/app/Assets/Motherland.jpeg";
 import trackImg7 from "@/app/Assets/Blessings.jpeg";
 import trackImg8 from "@/app/Assets/slt.jpg";
+import trackImg9 from "@/app/Assets/saliba.jpeg";
 import { FaSpotify, FaSoundcloud, FaApple, FaDeezer } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
@@ -80,6 +81,14 @@ const TRACKS = [
     work: 'Production (Track 1, 2, 3, 6, 7, & 8)',
     img: trackImg8, 
     spotifyUrl: "https://open.spotify.com/album/4Fkkz6CN0R6TcPiRHVpGmj?si=epUR-Q0eSFOOjrR8v2pLtA",
+  },
+  {
+    id: 9,
+    title: "Saliba",
+    artist: 'Uncle Baby, Hamydgrey, Perlz & Tiimie',
+    work: 'Production',
+    img: trackImg9, 
+    spotifyUrl: "https://open.spotify.com/track/7ehKwcTPiVxNotsXl7FsN1?si=78595ca4a1e5453c",
   },
 ];
 
